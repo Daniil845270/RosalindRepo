@@ -1,4 +1,4 @@
-from rosalind_utils.fasta import multipleBigSequencesReader, returnAnswerAsFile
+from rosalind_utils.fasta import multipleBigSequencesReader
 from pathlib import Path
 
 def findStrings(bigString, subString):
