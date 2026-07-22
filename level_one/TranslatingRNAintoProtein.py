@@ -1,7 +1,10 @@
-# from rosalind_utils.constants import CODON_TABLE
-from rosalind_utils import constants
+from rosalind_utils.constants import CODON_TABLE
+from rosalind_utils.fasta import bigSingleSequenceReader, returnAnswerAsFile
+from pathlib import Path
 
-rna = str(input())
+parentDir = Path(__file__).resolve().parent
+fasta_path = parentDir / "fastaData.txt"
+rna = bigSingleSequenceReader(fasta_path)
 
 cnt1 = 0
 cnt2 = 3
@@ -13,9 +16,8 @@ while stop == False:
     triplet = rna[cnt1:cnt2]
     if triplet in stopCodons:
         break
-    protein += constants.CODON_TABLE[triplet]
+    protein += CODON_TABLE[triplet]
     cnt1 += 3
     cnt2 += 3
 
-
-print(protein)
+returnAnswerAsFile(parentDir / "Answer", protein)
