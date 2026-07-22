@@ -21,6 +21,14 @@ def bigSingleSequenceReader(documentName: str) -> str:
             sequence += line
     return sequence
 
+def multipleBigSequencesReader(documentName: str) -> list:
+    sequences = []
+    with open(documentName) as file:
+        for line in file:
+            line = line.strip()
+            sequences.append(line)
+    return sequences
+
 def returnAnswerAsFile(documentName, value):
     with open(documentName, "w") as f:
         f.write(value)
