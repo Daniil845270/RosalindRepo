@@ -10,36 +10,36 @@ import time
 from rosalind_utils.fasta import fastaParser
 from pathlib import Path
 
-# idList = []
-# with open("level_two/ProteinIDs.txt", 'r') as file:
-#     for protID in file:
-#         protID = protID.strip()
-#         underscoreIdx = protID.find("_")
-#         if underscoreIdx != -1:
-#             protID = protID[ : underscoreIdx]
-#         idList.append(protID)
-# print(idList)
+idList = {}
+with open("level_two/ProteinIDs.txt", 'r') as file:
+    for protID in file:
+        protID = protID.strip()
+        idList[protID] = protID
 
-# urlList = []
-# for id in idList:
-#     urlList.append(f"https://rest.uniprot.org/uniprotkb/{id}.fasta")
+        underscoreIdx = protID.find("_")
+        if underscoreIdx != -1:
+            idList[protID] = protID[ : underscoreIdx]
 
-# for url in urlList:
-#     response = requests.get(url)
-#     time.sleep(2)
-#     file_Path = 'level_two/experiment.txt'
+urlList = []
+for id in idList.values():
+    urlList.append(f"https://rest.uniprot.org/uniprotkb/{id}.fasta")
 
-#     if response.status_code == 200:
-#         if url == urlList[0]:
-#             with open(file_Path, 'w') as file:
-#                 file.write(response.content.decode())
-#             print('File downloaded successfully')
-#         else:
-#             with open(file_Path, 'a') as file:
-#                 file.write(response.content.decode())
-#             print('File downloaded successfully')    
-#     else:
-#         print('Failed to download file ')
+for url in urlList:
+    response = requests.get(url)
+    time.sleep(2)
+    file_Path = 'level_two/experiment.txt'
+
+    if response.status_code == 200:
+        if url == urlList[0]:
+            with open(file_Path, 'w') as file:
+                file.write(response.content.decode())
+            print('File downloaded successfully')
+        else:
+            with open(file_Path, 'a') as file:
+                file.write(response.content.decode())
+            # print('File downloaded successfully')    
+    else:
+        print('Failed to download file ')
 
 
 parentDir = Path(__file__).resolve().parent
@@ -47,12 +47,16 @@ fasta_path = parentDir / "experiment.txt"
 proteinsFasta = fastaParser(fasta_path)
 
 proteinsWithMotif = {}
-# N{P}[ST]{P}
+# the motif is N{P}[ST]{P}
 for fastaName, protein in proteinsFasta.items():
     # extracting the ID from the fasta name
     nameID = fastaName[3:]
     nameID = nameID[:nameID.find('|')]
-    proteinsWithMotif[nameID] = []
+    for key, value in idList.items():
+        if value == nameID:
+            proteinsWithMotif[key] = []
+            nameID = key
+            
     proteinLength = len(protein)
     for idx in range(proteinLength):
         # -1 because the idx starts from 0, and 4 because the reading frame 
@@ -71,10 +75,3 @@ for fastaName, protein in proteinsFasta.items():
 for key, value in proteinsWithMotif.items():
     print(key)
     print(" ".join(map(str, value)))
-# print(proteinsWithMotif)
-
-
-{'sp|A2Z669|CSPLT_ORYSI CASP-like protein 5A2 OS=Oryza sativa subsp. indica OX=39946 GN=OsI_33147 PE=3 SV=1': [], 
- 'sp|B5ZC00|SYG_UREU1 Glycine--tRNA ligase OS=Ureaplasma urealyticum serovar 10 (strain ATCC 33699 / Western) OX=565575 GN=glyQS PE=3 SV=1': [85, 118, 142, 306, 395], 
- 'sp|P07204|TRBM_HUMAN Thrombomodulin OS=Homo sapiens OX=9606 GN=THBD PE=1 SV=2': [47, 115, 116, 382, 409], 
- 'sp|P20840|SAG1_YEAST Alpha-agglutinin OS=Saccharomyces cerevisiae (strain ATCC 204508 / S288c) OX=559292 GN=SAG1 PE=1 SV=2': [79, 109, 135, 248, 306, 348, 364, 402, 485, 501, 614]}
